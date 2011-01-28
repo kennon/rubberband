@@ -60,12 +60,9 @@ module ElasticSearch
         # id
         # fields
         
-        hit = execute(:mlt, options[:index], options[:type], id, options)
-        if hit
-          Hit.new(hit).freeze
-        end
+        response = execute(:mlt, options[:index], options[:type], id, options)
+        Hits.new(response, slice_hash(options, :per_page, :page, :ids_only)).freeze #ids_only returns array of ids 
       end
-
 
       #df	 The default field to use when no field prefix is defined within the query.
       #analyzer	 The analyzer name to be used when analyzing the query string.
