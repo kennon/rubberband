@@ -52,6 +52,21 @@ module ElasticSearch
         end
       end
 
+      def mlt(id, options={})
+        set_default_scope!(options)
+        raise "index and type or defaults required" unless options[:index] && options[:type]
+        # index
+        # type
+        # id
+        # fields
+        
+        hit = execute(:mlt, options[:index], options[:type], id, options)
+        if hit
+          Hit.new(hit).freeze
+        end
+      end
+
+
       #df	 The default field to use when no field prefix is defined within the query.
       #analyzer	 The analyzer name to be used when analyzing the query string.
       #default_operator	 The default operator to be used, can be AND or OR. Defaults to OR.

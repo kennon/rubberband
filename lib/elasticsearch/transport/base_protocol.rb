@@ -23,6 +23,23 @@ module ElasticSearch
         hit # { "_id", "_index", "_type", "_source" }
       end
 
+      def mlt(index, type, id, options={})
+        # if query.is_a?(Hash)
+        #   # patron cannot submit get requests with content, so if query is a hash, post it instead (assume a query hash is using the query dsl)
+        #   response = request(:post, {:index => index, :type => type, :id => id, :op => "_mlt"}, options, encoder.encode(query))
+        # else
+          response = request(:get, {:index => index, :type => type, :id => id, :op => "_mlt"}, options)
+        # end
+        handle_error(response) unless response.status == 200
+        results = encoder.decode(response.body)
+        # unescape ids
+        results["hits"]["hits"].each do |hit|
+          unescape_id!(hit)
+          set_encoding!(hit)
+        end
+        results # {"hits"=>{"hits"=>[{"_id", "_type", "_source", "_index", "_score"}], "total"}, "_shards"=>{"failed", "total", "successful"}}
+      end
+      
       def delete(index, type, id, options={})
         response = request(:delete,{:index => index, :type => type, :id => id})
         handle_error(response) unless response.status == 200 # ElasticSearch always returns 200 on delete, even if the object doesn't exist
